@@ -201,7 +201,7 @@ void LeviLaminaWorldGaugeProvider::onDimensionCreated(::Dimension &dimension) no
 void LeviLaminaWorldGaugeProvider::onChunkLoaded(::ChunkSource &, ::LevelChunk &chunk, int) noexcept
 {
     try {
-        if (!bds::detail::isLoadedChunkState(chunk.getState().load(std::memory_order_acquire))) {
+        if (!bds::detail::isLoadedChunkState(chunk.mLoadState.get().load(std::memory_order_acquire))) {
             return;
         }
         if (access_ == nullptr) {

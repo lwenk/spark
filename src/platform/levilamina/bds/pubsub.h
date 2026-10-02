@@ -25,6 +25,7 @@
 #include "mc/deps/core/utility/pub_sub/Connector.h"
 #include "mc/deps/core/utility/pub_sub/Subscription.h"
 #include "mc/deps/core/utility/pub_sub/SubscriptionContext.h"
+#include "mc/platform/brstd/move_only_function.h"
 
 class ChunkSource;
 class Dimension;
@@ -36,8 +37,9 @@ namespace spark::levilamina::bds::pubsub {
 template <typename Signature>
 class ConnectorView {
 public:
-    using FunctionType = std::function<Signature>;
-    using ContextType = std::unique_ptr<::Bedrock::PubSub::SubscriptionContext>;
+    // The virtual signature must exactly match the 26.51 BDS connector ABI.
+    using FunctionType = ::brstd::move_only_function<Signature>;
+    using ContextType = ::Bedrock::PubSub::ContextType;
 
     template <typename Fn>
     [[nodiscard]] ::Bedrock::PubSub::Subscription connect(

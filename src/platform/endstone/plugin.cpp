@@ -320,7 +320,7 @@ private:
 #endif
 };
 
-ENDSTONE_PLUGIN("spark", "0.6.1", SparkPlugin)
+ENDSTONE_PLUGIN("spark", "0.6.2", SparkPlugin)
 {
     description = "A performance profiler for Bedrock Dedicated Server.";
     authors = {"ReallocAll <ReallocAll@outlook.com>"};

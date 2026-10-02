@@ -13,7 +13,6 @@
 #include "ll/api/mod/NativeMod.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/utils/SystemUtils.h"
-#include "ll/core/mod/NativeModManager.h"
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOutput.h"
 #include "mc/server/commands/CommandPermissionLevel.h"
@@ -36,7 +35,6 @@ namespace spark::levilamina {
 namespace {
 
 static_assert(std::is_polymorphic_v<ll::mod::ModManager>);
-static_assert(std::is_final_v<ll::mod::NativeModManager>);
 
 std::optional<std::uintptr_t> validatedModuleBase(ll::sys_utils::HandleT handle) noexcept
 {
@@ -63,13 +61,9 @@ std::string modulePath(ll::sys_utils::HandleT handle)
     return path.has_value() ? path->string() : std::string{};
 }
 
-std::shared_ptr<ll::mod::NativeModManager> nativeModManager()
+std::shared_ptr<ll::mod::ModManager> nativeModManager()
 {
-    const auto manager = ll::mod::ModManagerRegistry::getInstance().getManager(ll::mod::NativeModManagerName);
-    if (!manager) {
-        return nullptr;
-    }
-    return std::dynamic_pointer_cast<ll::mod::NativeModManager>(manager);
+    return ll::mod::ModManagerRegistry::getInstance().getManager(ll::mod::NativeModManagerName);
 }
 
 }  // namespace

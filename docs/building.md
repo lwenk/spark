@@ -93,7 +93,7 @@ required 3.12-or-newer runtime for Python attribution.
 ## LeviLamina target
 
 `SPARK_BUILD_LEVILAMINA` is disabled by default. It is a source-built Windows
-x64 target for BDS 1.26.20.x with LeviLamina 26.20.7
+x64 target for BDS 1.26.51.x with LeviLamina 26.51.6
 inputs. It builds one native module (`levilamina_spark.dll`, with matching
 `levilamina_spark.pdb` for Windows symbols). The module supplies server and
 native-mod metadata, aggregate player ping, uptime, TPS/MSPT, and health data,
@@ -115,16 +115,16 @@ prelink tool. The repository provides a public pinned-input bootstrap at
 [`tools/levilamina/prepare-sdk.ps1`](../tools/levilamina/prepare-sdk.ps1) and
 the corresponding [`runtime-lock.json`](../tools/levilamina/runtime-lock.json)
 and [`sdk-lock.json`](../tools/levilamina/sdk-lock.json). It downloads only the
-locked public SDK, runtime, prelink, SymbolProvider, and Bedrock runtime-data
-archives; it does not download a BDS server archive. Keep its output outside
+locked public runtime, prelink, SymbolProvider, and Bedrock runtime-data
+archives, plus the pinned LeviLamina source tag; it does not download a BDS server archive. Keep its output outside
 the repository. An optional `-CacheRoot <absolute-path>` may reuse existing
 archives, which are rehashed before use. Supply every resulting build input
 explicitly:
 
-- a pinned LeviLamina 26.20.7 SDK root;
+- a pinned LeviLamina 26.51.6 SDK root;
 - the matching `LeviLamina.dll` and PDB;
 - Bedrock runtime data for prelink;
-- pinned prelink 0.7.1;
+- pinned prelink 0.8.6;
 - the pinned `SymbolProvider.cpp` source;
 - `llvm-dlltool`; and
 - the repository's `tools/levilamina/spark-levilamina-imports.json` allowlist.

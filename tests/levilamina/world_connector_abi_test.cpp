@@ -34,6 +34,8 @@ int main()
     static_assert(alignof(::Bedrock::PubSub::Subscription) == 8);
     static_assert(static_cast<int>(::Bedrock::PubSub::ConnectPosition::AtBack) == 0);
     static_assert(static_cast<int>(::Bedrock::PubSub::ConnectPosition::AtFront) == 1);
+    static_assert(!std::is_copy_constructible_v<ConnectorView<ChunkLoadedSignature>::FunctionType>);
+    static_assert(std::is_move_constructible_v<ConnectorView<ChunkLoadedSignature>::FunctionType>);
     static_cast<void>(sizeof(MockConnector));
     return 0;
 }

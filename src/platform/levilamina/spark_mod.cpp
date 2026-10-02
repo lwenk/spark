@@ -166,7 +166,7 @@ public:
             output.error("Spark command was rejected on an unobserved server thread");
             return;
         }
-        context_->dispatch(origin, output, parameters.raw.getText());
+        context_->dispatch(origin, output, parameters.raw.mText);
     }
 
 private:

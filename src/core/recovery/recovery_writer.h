@@ -14,7 +14,7 @@
 #include <thread>
 #include <vector>
 
-#include <moodycamel/concurrentqueue.h>
+#include <concurrentqueue.h>
 
 #include "core/recovery/journal_format.h"
 #include "native/sampler/recovery_sink.h"

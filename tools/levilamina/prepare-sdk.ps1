@@ -68,9 +68,38 @@ function Assert-VerifiedFile {
     }
     $size = (Get-Item -LiteralPath $Path).Length
     $hash = Get-Hash -Path $Path
-    if ($size -ne [int64]$Item.size -or $hash -ne $Item.sha256.ToLowerInvariant()) {
+    $hasDeclaredSize = $Item.PSObject.Properties.Name -contains 'size' -and $null -ne $Item.size
+    if (($hasDeclaredSize -and $size -ne [int64]$Item.size) -or $hash -ne $Item.sha256.ToLowerInvariant()) {
         throw ('archive verification failed for ' + $Item.id + ': size=' + $size + ' sha256=' + $hash)
     }
+}
+
+function Get-VerifiedGitSource {
+    param([pscustomobject]$Item)
+
+    $git = Get-Command git.exe -ErrorAction SilentlyContinue
+    if ($null -eq $git) {
+        throw 'git.exe is required to prepare the pinned LeviLamina source'
+    }
+    $target = Get-OutputPath -Root $extractRoot -Path (Join-Path $extractRoot $Item.id)
+    if (Test-Path -LiteralPath $target) {
+        $head = (& $git.Source -C $target rev-parse HEAD 2>$null).Trim().ToLowerInvariant()
+        if ($LASTEXITCODE -ne 0 -or $head -ne $Item.commit.ToLowerInvariant()) {
+            throw ('existing Git source does not match the pinned commit: ' + $target)
+        }
+        return $target
+    }
+    Write-Host ('cloning ' + $Item.id + ' ' + $Item.ref)
+    & $git.Source clone --depth 1 --branch $Item.ref --single-branch $Item.url $target
+    if ($LASTEXITCODE -ne 0) {
+        throw ('git clone failed for ' + $Item.id)
+    }
+    $head = (& $git.Source -C $target rev-parse HEAD).Trim().ToLowerInvariant()
+    if ($LASTEXITCODE -ne 0 -or $head -ne $Item.commit.ToLowerInvariant()) {
+        throw ('Git source verification failed for ' + $Item.id + ': commit=' + $head)
+    }
+    Write-Host ('verified Git source ' + $Item.id + ' (' + $head + ')')
+    return $target
 }
 
 function Get-VerifiedArchive {
@@ -319,10 +348,10 @@ if ($sdkLock.lock_version -ne 1 -or $sdkLock.locked -ne $true -or $sdkLock.platf
 if ($runtimeLock.lock_version -ne 1 -or $runtimeLock.locked -ne $true -or $runtimeLock.platform -ne 'windows-x64') {
     throw 'unsupported or unlocked runtime lock'
 }
-if ($sdkLock.runtime.levilamina_version -ne '26.20.7' -or $sdkLock.runtime.levilamina_commit -ne 'bbb374245d57001c89b02d281d3b658ca3658c71') {
+if ($sdkLock.runtime.levilamina_version -ne '26.51.6' -or $sdkLock.runtime.levilamina_commit -ne '32fcaa02baa38371b705358801c7d185c284233e') {
     throw 'LeviLamina source pin is not the accepted public version'
 }
-if ($sdkLock.runtime.bedrock_runtime_data_version -ne '26.20.5-server.7') {
+if ($sdkLock.runtime.bedrock_runtime_data_version -ne '26.51.1-server.7') {
     throw 'Bedrock runtime data version is not the accepted public version'
 }
 foreach ($requiredArchiveId in @('levilamina-source', 'entt', 'expected-lite', 'fmt', 'gsl', 'glm', 'leveldb', 'magic_enum', 'nlohmann_json', 'rapidjson', 'type_safe', 'pcg_cpp', 'pfr', 'concurrentqueue', 'stb', 'parallel-hashmap', 'symbolprovider', 'prelink', 'bedrock-runtime-data')) {
@@ -342,9 +371,17 @@ foreach ($item in $allItems) {
     if ($archivePaths.ContainsKey($item.id)) {
         throw ('duplicate archive id: ' + $item.id)
     }
-    $archivePaths[$item.id] = Get-VerifiedArchive -Item $item
+    $isGitSource = $item.PSObject.Properties.Name -contains 'kind' -and $item.kind -eq 'git-source'
+    if (-not $isGitSource) {
+        $archivePaths[$item.id] = Get-VerifiedArchive -Item $item
+    }
 }
 foreach ($item in $sdkLock.archives) {
+    $isGitSource = $item.PSObject.Properties.Name -contains 'kind' -and $item.kind -eq 'git-source'
+    if ($isGitSource) {
+        $extractRoots[$item.id] = Get-VerifiedGitSource -Item $item
+        continue
+    }
     $destination = Join-Path $extractRoot $item.id
     Expand-SafeArchive -ArchivePath $archivePaths[$item.id] -Destination $destination
     if ($item.id -eq 'prelink' -or $item.id -eq 'bedrock-runtime-data') {
@@ -472,9 +509,10 @@ $receipt = [ordered]@{
         levilamina_commit = $sdkLock.runtime.levilamina_commit
         bedrock_runtime_data = $sdkLock.runtime.bedrock_runtime_data_version
         symbolprovider = '6c93ec45c8455992ee726d92df60316c8e731c44'
-        prelink = '0.7.1'
+        prelink = '0.8.6'
     }
-    verified_archives = @($allItems | ForEach-Object { [ordered]@{ id = $_.id; version = $_.version; size = [int64]$_.size; sha256 = $_.sha256.ToLowerInvariant() } })
+    verified_archives = @($allItems | Where-Object { -not ($_.PSObject.Properties.Name -contains 'kind' -and $_.kind -eq 'git-source') } | ForEach-Object { [ordered]@{ id = $_.id; version = $_.version; size = if ($null -eq $_.size) { $null } else { [int64]$_.size }; sha256 = $_.sha256.ToLowerInvariant() } })
+    verified_sources = @($sdkLock.archives | Where-Object { $_.PSObject.Properties.Name -contains 'kind' -and $_.kind -eq 'git-source' } | ForEach-Object { [ordered]@{ id = $_.id; ref = $_.ref; commit = $_.commit } })
     paths = [ordered]@{
         sdk_root = $sdkRoot
         runtime_dll = $runtimeDll
@@ -484,10 +522,11 @@ $receipt = [ordered]@{
         symbolprovider_source = $symbolProviderSource
     }
     validation = @(
-        'all public archives passed exact size and SHA256 checks'
+        'all public archives passed SHA256 checks and declared size checks'
+        'the LeviLamina source tag resolved to the pinned commit'
         'archive entries passed path traversal and duplicate-entry checks'
         'LeviLamina source headers and public dependencies were staged'
-        'expected-lite header hash matched 14a2a36b...'
+        'expected-lite header hash matched 4bf6a47f...'
         'SymbolProvider.cpp hash matched 7478d26e...'
         'LeviLamina runtime DLL/PDB hashes matched the public release lock'
         'no BDS server archive was downloaded or staged'

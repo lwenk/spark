@@ -14,7 +14,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include <moodycamel/concurrentqueue.h>
+#include <concurrentqueue.h>
 
 #include "native/python/python_attribution.h"
 #include "native/sampler/call_tree.h"

@@ -3,41 +3,29 @@
   "locked": true,
   "platform": "windows-x64",
   "runtime": {
-    "levilamina_version": "26.20.7",
-    "levilamina_commit": "bbb374245d57001c89b02d281d3b658ca3658c71",
-    "bedrock_runtime_data_version": "26.20.5-server.7",
-    "bedrock_runtime_data_sha256": "0a3cf3d3b581767c38f3d03142b8d453093be982fc2305014379a1ec44921e9f",
-    "runtime_dll_sha256": "4e65d6828107c98a859bf98ac1da93d8a5b9dc1acca15642fe31ac79f7e0d56b"
+    "levilamina_version": "26.51.6",
+    "levilamina_commit": "32fcaa02baa38371b705358801c7d185c284233e",
+    "bedrock_runtime_data_version": "26.51.1-server.7",
+    "bedrock_runtime_data_sha256": "44e548f693b2eb1bd5ccd8b56169cdbf2b9f01e7d1833717c6351bd8f7a2e385",
+    "runtime_dll_sha256": "a1e4d39ddd89892127e875ee655bcbdefca9c5d3e6c204c31c31a1431fcfb514"
   },
   "archives": [
     {
       "id": "levilamina-source",
-      "version": "26.20.7",
-      "commit": "bbb374245d57001c89b02d281d3b658ca3658c71",
-      "file": "levilamina-source-bbb374245d57001c89b02d281d3b658ca3658c71.zip",
-      "url": "https://github.com/LiteLDev/LeviLamina/archive/bbb374245d57001c89b02d281d3b658ca3658c71.zip",
-      "sha256": "220fade30bb07aedc9126a55fe64a14040f783a2f3acdef6d5de86a437f3eae3",
-      "size": 18042115,
-      "kind": "source"
-    },
-    {
-      "id": "xmake-repo",
-      "version": "snapshot",
-      "commit": "7d52218c8ebe66ae92ce9f716f312bfd8d0e2d31",
-      "file": "xmake-repo-7d52218c8ebe66ae92ce9f716f312bfd8d0e2d31.zip",
-      "url": "https://github.com/LiteLDev/xmake-repo/archive/7d52218c8ebe66ae92ce9f716f312bfd8d0e2d31.zip",
-      "sha256": "82dcd6745bde37608eca3d778084012c9e1b1bd60fa00b37d32bc7b056a61db5",
-      "size": 108592,
-      "kind": "metadata"
+      "version": "26.51.6",
+      "commit": "32fcaa02baa38371b705358801c7d185c284233e",
+      "ref": "v26.51.6",
+      "url": "https://github.com/LiteLDev/LeviLamina.git",
+      "kind": "git-source"
     },
     {
       "id": "entt",
-      "version": "3.15.0",
-      "commit": "d4014c74dc3793aba95ae354d6e23a026c2796db",
-      "file": "entt-v3.15.0.zip",
-      "url": "https://github.com/skypjack/entt/archive/d4014c74dc3793aba95ae354d6e23a026c2796db.zip",
-      "sha256": "dbdf1a444eaffc29072765e40ac6e0e0cf79337014d5423cfe7ac64a757e8cef",
-      "size": 1043887,
+      "version": "4.0.0",
+      "commit": "85c6bba014049b5de8fad49d25424df2f1f6a8c1",
+      "file": "entt-v4.0.0.tar.gz",
+      "url": "https://github.com/skypjack/entt/archive/refs/tags/v4.0.0.tar.gz",
+      "sha256": "32a2ff2c72cb047dfd57306006ef238820b70da7c6ce4e7e8a507ac63365212e",
+      "size": null,
       "kind": "header"
     },
     {
@@ -178,8 +166,7 @@
       "url": "https://github.com/greg7mdp/parallel-hashmap/archive/refs/tags/v2.0.0.tar.gz",
       "sha256": "4f462f51a3468166ea4cf87c80e001dc1999093264cf55cbda3492ca39a7730b",
       "size": 2059086,
-      "kind": "header",
-      "xmake_archive_sha256": "4f462f51a3468166ea4cf87c80e001dc1999093264cf55cbda3492ca39a7730b"
+      "kind": "header"
     },
     {
       "id": "symbolprovider",
@@ -193,22 +180,22 @@
     },
     {
       "id": "prelink",
-      "version": "0.7.1",
+      "version": "0.8.6",
       "commit": null,
-      "file": "prelink-v0.7.1-windows-x64.zip",
-      "url": "https://github.com/LiteLDev/prelink-release/releases/download/v0.7.1/prelink-v0.7.1-windows-x64.zip",
-      "sha256": "186a6539b0602e386554acc66422b2daf4a587ae514ccf73fb4238df86a134f1",
-      "size": 1790495,
+      "file": "prelink-v0.8.6-windows-x64.zip",
+      "url": "https://github.com/LiteLDev/prelink-release/releases/download/v0.8.6/prelink-v0.8.6-windows-x64.zip",
+      "sha256": "56c01d9e50bcdfb74ffc27550b45644fa18c564f6dc816f2fceafb17e87ab71b",
+      "size": 6218360,
       "kind": "tool"
     },
     {
       "id": "bedrock-runtime-data",
-      "version": "26.20.5-server.7",
-      "commit": "ce63ffdb1f7c0d12144653959e040d77aac585a6",
-      "file": "bedrock-runtime-data-v26.20.5-server.7-windows-x64.zip",
-      "url": "https://github.com/LiteLDev/bedrock-runtime-data/releases/download/v26.20.5-server.7/bedrock-runtime-data-v26.20.5-server.7-windows-x64.zip",
-      "sha256": "0a3cf3d3b581767c38f3d03142b8d453093be982fc2305014379a1ec44921e9f",
-      "size": 33611034,
+      "version": "26.51.1-server.7",
+      "commit": "28e47186edbb77dfd4c2c78f1c9863e330583395",
+      "file": "bedrock-runtime-data-v26.51.1-server.7-windows-x64.zip",
+      "url": "https://github.com/LiteLDev/bedrock-runtime-data/releases/download/v26.51.1-server.7/bedrock-runtime-data-v26.51.1-server.7-windows-x64.zip",
+      "sha256": "44e548f693b2eb1bd5ccd8b56169cdbf2b9f01e7d1833717c6351bd8f7a2e385",
+      "size": 30122614,
       "kind": "runtime-data"
     }
   ],
@@ -230,7 +217,7 @@
   },
   "dependencies": {
     "entt": {"source": "src/entt", "destination": "dependencies/entt/include/entt"},
-    "expected-lite": {"source": "include", "destination": "dependencies/expected-lite/include", "header_sha256": "14a2a36b32bcb66e1128c721e2ade36a90d9d9ad7207ea5ea81662d5d1f41cbf", "header_path": "nonstd/expected.hpp"},
+    "expected-lite": {"source": "include", "destination": "dependencies/expected-lite/include", "header_sha256": "4bf6a47f57ba1e1be68d3cc856d5a9786511347c704bce015e84151436023854", "header_path": "nonstd/expected.hpp"},
     "fmt": {"source": "include/fmt", "destination": "dependencies/fmt/include/fmt"},
     "gsl": {"source": "include/gsl", "destination": "dependencies/gsl/include/gsl", "extensions": [".h", ".hpp", ".in", ""]},
     "glm": {"source": "glm", "destination": "dependencies/glm/include/glm", "extensions": [".h", ".hpp", ".inl"]},

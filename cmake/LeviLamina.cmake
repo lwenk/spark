@@ -6,7 +6,7 @@ if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR NOT CMAKE_CXX_COMPILER_FRONTEN
 endif ()
 
 set(SPARK_LL_SDK_ROOT "" CACHE PATH
-        "External LeviLamina 26.20.7 SDK root")
+        "External LeviLamina 26.51.6 SDK root")
 set(SPARK_LL_RUNTIME_DLL "" CACHE FILEPATH
         "External LeviLamina runtime DLL used to synthesize the import library")
 set(SPARK_LL_RUNTIME_PDB "" CACHE FILEPATH
@@ -14,7 +14,7 @@ set(SPARK_LL_RUNTIME_PDB "" CACHE FILEPATH
 set(SPARK_LL_RUNTIME_DATA "" CACHE FILEPATH
         "External bedrock runtime data passed to prelink")
 set(SPARK_LL_PRELINK "" CACHE FILEPATH
-        "External pinned prelink 0.7.1 executable")
+        "External pinned prelink 0.8.6 executable")
 set(SPARK_LL_IMPORT_ALLOWLIST "${CMAKE_CURRENT_SOURCE_DIR}/tools/levilamina/spark-levilamina-imports.json" CACHE FILEPATH
         "Validated named LeviLamina exports admitted to the import library")
 set(SPARK_LL_SYMBOLPROVIDER_SOURCE "" CACHE FILEPATH
@@ -55,7 +55,7 @@ foreach (_spark_ll_required IN LISTS _spark_ll_required_paths)
     endif ()
 endforeach ()
 file(SHA256 "${SPARK_LL_SDK_ROOT}/dependencies/expected-lite/include/nonstd/expected.hpp" _spark_ll_expected_lite_hash)
-if (NOT _spark_ll_expected_lite_hash STREQUAL "14a2a36b32bcb66e1128c721e2ade36a90d9d9ad7207ea5ea81662d5d1f41cbf")
+if (NOT _spark_ll_expected_lite_hash STREQUAL "4bf6a47f57ba1e1be68d3cc856d5a9786511347c704bce015e84151436023854")
     message(FATAL_ERROR "LeviLamina SDK expected-lite header is not the pinned f339d2f73730f8fee4412f5e4938717866ecef48 commit")
 endif ()
 file(SHA256 "${SPARK_LL_SYMBOLPROVIDER_SOURCE}" _spark_ll_symbolprovider_hash)
@@ -187,7 +187,7 @@ add_custom_target(spark_levilamina_import_library DEPENDS "${_spark_ll_import_li
 
 set(_spark_ll_prelink_dir "${CMAKE_CURRENT_BINARY_DIR}/levilamina/prelink/$<CONFIG>")
 set(_spark_ll_prelink_lib "${_spark_ll_prelink_dir}/lib/bedrock_runtime_api.lib")
-# Prelink 0.7.1's verified contract is:
+# Prelink 0.8.6's server contract matches LeviBuildScript 0.6.1:
 #   prelink.exe server-windows-x64 <outdir> <bedrock_runtime_data> <objects...>
 # It writes bedrock_runtime_api.lib below <outdir>/lib.
 add_custom_command(
@@ -500,4 +500,4 @@ add_dependencies(spark_levilamina_cleanup_deadline_test_driver spark_levilamina_
 add_test(NAME spark_levilamina_cleanup_deadline_test_driver COMMAND spark_levilamina_cleanup_deadline_test_driver)
 set_tests_properties(spark_levilamina_cleanup_deadline_test_driver PROPERTIES TIMEOUT 30)
 
-message(STATUS "LeviLamina target enabled with isolated SDK includes: ${_spark_ll_server_include}; ${_spark_ll_common_include}")
+message(STATUS "LeviLamina 26.51 target enabled with isolated SDK includes: ${_spark_ll_server_include}; ${_spark_ll_common_include}")

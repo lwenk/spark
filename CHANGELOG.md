@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Preserve the active host identity when saving profiles recovered from a crash journal.
 
-- Add a Windows x64 LeviLamina 26.20.x host target with a permission-gated
+- Add a Windows x64 LeviLamina 26.51.x host target with a permission-gated
   `/spark` command, shared configuration, TPS/MSPT and health statistics,
   background profiling, local execution-profile saves, and clean server
   shutdown.

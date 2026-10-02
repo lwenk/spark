@@ -33,7 +33,7 @@ The C++ Endstone plugin must match the ABI expected by the Endstone server. Use 
 ## LeviLamina 26.51
 
 The LeviLamina module uses the same CMake, Conan, Ninja, and clang-cl toolchain
-as the 26.20 branch. It also needs a matching LeviLamina SDK/runtime package,
+as the 26.20 branch, updated for LeviLamina 26.51.6. It also needs a matching LeviLamina SDK/runtime package,
 Bedrock runtime data, `prelink`, and SymbolProvider source; see
 `cmake/LeviLamina.cmake` for the required cache variables.
 

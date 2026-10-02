@@ -3,22 +3,22 @@
   "locked": true,
   "platform": "windows-x64",
   "runtime": {
-    "levilamina_version": "26.20.7",
-    "levilamina_commit": "bbb374245d57001c89b02d281d3b658ca3658c71",
-    "bedrock_runtime_data_version": "26.20.5-server.7"
+    "levilamina_version": "26.51.6",
+    "levilamina_commit": "32fcaa02baa38371b705358801c7d185c284233e",
+    "bedrock_runtime_data_version": "26.51.1-server.7"
   },
   "artifacts": [
     {
       "id": "levilamina",
-      "version": "26.20.7",
-      "file": "levilamina-v26.20.7-server-release-windows-x64.zip",
-      "url": "https://github.com/LiteLDev/LeviLamina/releases/download/v26.20.7/levilamina-v26.20.7-server-release-windows-x64.zip",
-      "sha256": "8cdd4bf743796f28e46bf62869b017e1ef3a5c02f045b869b98a5a4cf68e9837",
-      "size": 10799147,
-      "runtime_dll_size": 4289536,
-      "runtime_dll_sha256": "4e65d6828107c98a859bf98ac1da93d8a5b9dc1acca15642fe31ac79f7e0d56b",
-      "runtime_pdb_size": 40243200,
-      "runtime_pdb_sha256": "199114e5043226478e007c3421a3d94102a47fd6f0c64d11e88a14ccf2b01dfd",
+      "version": "26.51.6",
+      "file": "levilamina-v26.51.6-server-release-windows-x64.zip",
+      "url": "https://github.com/LiteLDev/LeviLamina/releases/download/v26.51.6/levilamina-v26.51.6-server-release-windows-x64.zip",
+      "sha256": "d2277ac4ec042e3498f00160ce1aa0e2dcec23f2b9a902925ac9b27a3f0feb40",
+      "size": 11585118,
+      "runtime_dll_size": 4765184,
+      "runtime_dll_sha256": "a1e4d39ddd89892127e875ee655bcbdefca9c5d3e6c204c31c31a1431fcfb514",
+      "runtime_pdb_size": 44240896,
+      "runtime_pdb_sha256": "8f06af8a89a3f5af602fa846a5635b803fb50957bfc02d0ca454f3c156289ad1",
       "entries": [
         "LeviLamina/LeviLamina.dll",
         "LeviLamina/LeviLamina.pdb"

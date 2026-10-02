@@ -5,7 +5,7 @@
 #include <limits>
 #include <sstream>
 #include <string>
-#include <toml.hpp>
+#include <toml++/toml.h>
 #include <type_traits>
 
 #include <curl/curl.h>

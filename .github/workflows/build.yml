@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [develop, "ci/**", levilamina-26.20]
+    branches: [develop, "ci/**", levilamina-26.51]
   pull_request:
     branches: [develop]
   workflow_dispatch:

@@ -13,7 +13,7 @@ namespace spark::levilamina::bds {
 std::optional<double> readServerTickMilliseconds() noexcept
 {
     try {
-        const auto nanoseconds = ProfilerLite::gProfilerLiteInstance().getServerTickTime().count();
+        const auto nanoseconds = ProfilerLite::gProfilerLiteInstance().mDebugServerTickTime.get().count();
         const double milliseconds = static_cast<double>(nanoseconds) / 1'000'000.0;
         if (nanoseconds < 0 || !std::isfinite(milliseconds)) {
             return std::nullopt;

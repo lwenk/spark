@@ -40,13 +40,13 @@ struct ActorObservation {
 
 std::string canonicalDimensionName(int dimension_id)
 {
-    if (dimension_id == ::VanillaDimensions::Overworld().value()) {
+    if (dimension_id == static_cast<int>(::VanillaDimensions::Overworld())) {
         return "overworld";
     }
-    if (dimension_id == ::VanillaDimensions::Nether().value()) {
+    if (dimension_id == static_cast<int>(::VanillaDimensions::Nether())) {
         return "nether";
     }
-    if (dimension_id == ::VanillaDimensions::TheEnd().value()) {
+    if (dimension_id == static_cast<int>(::VanillaDimensions::TheEnd())) {
         return "the_end";
     }
     return "dimension_" + std::to_string(dimension_id);
@@ -58,11 +58,11 @@ DimensionRetention WorldAccess::retainDimension(::Dimension &dimension) noexcept
         return DimensionRetention::Failed;
     }
     try {
-        if (&dimension.getLevel() != level_) {
+        if (&dimension.mLevel != static_cast<::ILevel *>(level_)) {
             return DimensionRetention::ForeignLevel;
         }
-        const int dimension_id = dimension.getDimensionId().value();
-        dimensions_[dimension_id] = dimension.getWeakRef();
+        const int dimension_id = static_cast<int>(dimension.getDimensionId());
+        dimensions_[dimension_id] = dimension.weak_from_this();
         return DimensionRetention::Retained;
     }
     catch (...) {
@@ -111,7 +111,7 @@ bool WorldAccess::pruneExpiredDimensions() noexcept
     for (auto iterator = dimensions_.begin(); iterator != dimensions_.end();) {
         try {
             auto dimension = iterator->second.lock();
-            if (!dimension || &dimension->getLevel() != level_) {
+            if (!dimension || &dimension->mLevel != static_cast<::ILevel *>(level_)) {
                 iterator = dimensions_.erase(iterator);
             }
             else {
@@ -132,13 +132,13 @@ ChunkKeyResult WorldAccess::chunkKeyStatus(::LevelChunk const &chunk, WorldGauge
         return ChunkKeyResult::Failed;
     }
     try {
-        auto &dimension = chunk.getDimension();
-        if (&dimension.getLevel() != level_) {
+        auto &dimension = chunk.mDimension;
+        if (&dimension.mLevel != static_cast<::ILevel *>(level_)) {
             return ChunkKeyResult::ForeignLevel;
         }
-        const auto &position = chunk.getPosition();
+        const auto &position = chunk.mPosition.get();
         key = {
-            .dimension = canonicalDimensionName(dimension.getDimensionId().value()), .x = position.x, .z = position.z};
+            .dimension = canonicalDimensionName(static_cast<int>(dimension.getDimensionId())), .x = position.x, .z = position.z};
         return ChunkKeyResult::Valid;
     }
     catch (...) {
@@ -162,7 +162,7 @@ bool WorldAccess::scan(std::string_view level_name_hint, ScanResult &result) noe
             if (!entity) {
                 continue;
             }
-            auto *actor = ::Actor::tryGetFromEntity(*entity, false);
+            auto *actor = ::Actor::tryGetFromEntity(const_cast<::EntityContext &>(*entity), false);
             if (actor == nullptr || &actor->getLevel() != level_ || !actor->hasUniqueID()) {
                 continue;
             }
@@ -180,12 +180,12 @@ bool WorldAccess::scan(std::string_view level_name_hint, ScanResult &result) noe
                 continue;
             }
             actors.push_back({.id = actor_id,
-                              .dimension_id = actor->getDimension().getDimensionId().value(),
+                              .dimension_id = static_cast<int>(actor->getDimension().getDimensionId()),
                               .chunk_x = chunk_x,
                               .chunk_z = chunk_z,
                               .type = [actor] {
                                   const auto &identifier = actor->getActorIdentifier();
-                                  const auto &canonical_name = identifier.getCanonicalName();
+                                  const auto &canonical_name = identifier.mCanonicalName.get().getString();
                                   return canonical_name.empty()
                                            ? "actor_" + std::to_string(static_cast<int>(actor->getEntityTypeId()))
                                            : canonical_name;
@@ -202,7 +202,7 @@ bool WorldAccess::scan(std::string_view level_name_hint, ScanResult &result) noe
         bool found_live_dimension = false;
         for (const auto &[dimension_id, weak_dimension] : dimensions_) {
             auto dimension = weak_dimension.lock();
-            if (!dimension || &dimension->getLevel() != level_) {
+            if (!dimension || &dimension->mLevel != static_cast<::ILevel *>(level_)) {
                 continue;
             }
             found_live_dimension = true;
@@ -211,10 +211,10 @@ bool WorldAccess::scan(std::string_view level_name_hint, ScanResult &result) noe
             const auto &storage = dimension->getChunkSource().getStorage();
             for (const auto &[position, weak_chunk] : storage) {
                 auto chunk = weak_chunk.lock();
-                if (!chunk || !detail::isLoadedChunkState(chunk->getState().load(std::memory_order_acquire))) {
+                if (!chunk || !detail::isLoadedChunkState(chunk->mLoadState.get().load(std::memory_order_acquire))) {
                     continue;
                 }
-                const auto &actual_position = chunk->getPosition();
+                const auto &actual_position = chunk->mPosition.get();
                 chunks.try_emplace(std::pair{actual_position.x, actual_position.z},
                                    WorldChunk{.x = actual_position.x, .z = actual_position.z});
                 result.gauges.chunks.push_back(
