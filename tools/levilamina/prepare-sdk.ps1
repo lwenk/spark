@@ -455,7 +455,7 @@ if ($symbolProviderHash -ne '7478d26ef21ea417383bf276deba540126410a7abb700402f7c
 
 $prelink = Join-Path $sdkRoot 'tools\prelink\prelink.exe'
 New-Item -ItemType Directory -Force -Path (Split-Path -Parent $prelink) | Out-Null
-$prelinkSource = Join-Path $extractRoots['prelink'] 'bin\prelink.exe'
+$prelinkSource = Join-Path $extractRoots['prelink'] 'prelink.exe'
 if (-not (Test-Path -LiteralPath $prelinkSource -PathType Leaf)) {
     throw 'pinned prelink.exe is missing'
 }
@@ -526,7 +526,7 @@ $receipt = [ordered]@{
         'the LeviLamina source tag resolved to the pinned commit'
         'archive entries passed path traversal and duplicate-entry checks'
         'LeviLamina source headers and public dependencies were staged'
-        'expected-lite header hash matched 4bf6a47f...'
+        'expected-lite header hash matched 14a2a36b...'
         'SymbolProvider.cpp hash matched 7478d26e...'
         'LeviLamina runtime DLL/PDB hashes matched the public release lock'
         'no BDS server archive was downloaded or staged'

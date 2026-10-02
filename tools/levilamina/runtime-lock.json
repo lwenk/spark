@@ -15,10 +15,10 @@
       "url": "https://github.com/LiteLDev/LeviLamina/releases/download/v26.51.6/levilamina-v26.51.6-server-release-windows-x64.zip",
       "sha256": "d2277ac4ec042e3498f00160ce1aa0e2dcec23f2b9a902925ac9b27a3f0feb40",
       "size": 11585118,
-      "runtime_dll_size": 4765184,
-      "runtime_dll_sha256": "a1e4d39ddd89892127e875ee655bcbdefca9c5d3e6c204c31c31a1431fcfb514",
-      "runtime_pdb_size": 44240896,
-      "runtime_pdb_sha256": "8f06af8a89a3f5af602fa846a5635b803fb50957bfc02d0ca454f3c156289ad1",
+      "runtime_dll_size": 4549632,
+      "runtime_dll_sha256": "90bb61dec4e2b261cfcbb5b3a5a5a7e942e4a31ba6d8f168dbcef967c9db11c9",
+      "runtime_pdb_size": 43790336,
+      "runtime_pdb_sha256": "f9ffdf4722dcee2809e8c09af17cd9658a90f66df3564464550f41c7d7dbcdb4",
       "entries": [
         "LeviLamina/LeviLamina.dll",
         "LeviLamina/LeviLamina.pdb"

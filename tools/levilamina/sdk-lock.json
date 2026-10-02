@@ -7,7 +7,7 @@
     "levilamina_commit": "32fcaa02baa38371b705358801c7d185c284233e",
     "bedrock_runtime_data_version": "26.51.1-server.7",
     "bedrock_runtime_data_sha256": "44e548f693b2eb1bd5ccd8b56169cdbf2b9f01e7d1833717c6351bd8f7a2e385",
-    "runtime_dll_sha256": "a1e4d39ddd89892127e875ee655bcbdefca9c5d3e6c204c31c31a1431fcfb514"
+    "runtime_dll_sha256": "90bb61dec4e2b261cfcbb5b3a5a5a7e942e4a31ba6d8f168dbcef967c9db11c9"
   },
   "archives": [
     {
@@ -217,7 +217,7 @@
   },
   "dependencies": {
     "entt": {"source": "src/entt", "destination": "dependencies/entt/include/entt"},
-    "expected-lite": {"source": "include", "destination": "dependencies/expected-lite/include", "header_sha256": "4bf6a47f57ba1e1be68d3cc856d5a9786511347c704bce015e84151436023854", "header_path": "nonstd/expected.hpp"},
+    "expected-lite": {"source": "include", "destination": "dependencies/expected-lite/include", "header_sha256": "14a2a36b32bcb66e1128c721e2ade36a90d9d9ad7207ea5ea81662d5d1f41cbf", "header_path": "nonstd/expected.hpp"},
     "fmt": {"source": "include/fmt", "destination": "dependencies/fmt/include/fmt"},
     "gsl": {"source": "include/gsl", "destination": "dependencies/gsl/include/gsl", "extensions": [".h", ".hpp", ".in", ""]},
     "glm": {"source": "glm", "destination": "dependencies/glm/include/glm", "extensions": [".h", ".hpp", ".inl"]},
@@ -234,7 +234,7 @@
   },
   "compiled_inputs": {
     "runtime_dll": "build-inputs/levilamina/LeviLamina.dll",
-    "runtime_dll_sha256": "4e65d6828107c98a859bf98ac1da93d8a5b9dc1acca15642fe31ac79f7e0d56b",
+    "runtime_dll_sha256": "90bb61dec4e2b261cfcbb5b3a5a5a7e942e4a31ba6d8f168dbcef967c9db11c9",
     "unresolved": [
       "LL import library is intentionally not synthesized in this preparation step",
       "symbolprovider source is staged for later ABI review; no compiled library is claimed",
