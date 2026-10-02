@@ -1,9 +1,11 @@
 #include "native/symbol/symbolicate.h"
 
+#include <array>
 #include <cctype>
 #include <limits>
 #include <optional>
 #include <string_view>
+#include <unordered_set>
 
 #include "native/symbol/symbol_guess.h"
 
@@ -66,6 +68,56 @@ bool isWindowsSystemModule(std::string_view module)
 {
     return isAmbiguousCrtModule(module) || equalsIgnoreCase(module, "ntdll.dll") ||
            equalsIgnoreCase(module, "kernel32.dll") || equalsIgnoreCase(module, "kernelbase.dll");
+}
+
+std::string parentDirectory(std::string_view path)
+{
+    const std::size_t separator = path.find_last_of("/\\");
+    return separator == std::string_view::npos ? std::string() : std::string(path.substr(0, separator));
+}
+
+void appendModuleDirectoriesToDbgHelpSearchPath(HANDLE process, const ModuleTable &modules,
+                                                 const std::vector<FrameKey> &keys)
+{
+    constexpr DWORD KSearchPathCapacity = 64 * 1024;
+    std::array<char, KSearchPathCapacity> existing{};
+    if (::SymGetSearchPath(process, existing.data(), static_cast<DWORD>(existing.size())) == FALSE) {
+        return;
+    }
+
+    std::string search_path(existing.data());
+    std::unordered_set<std::string> known_directories;
+    for (std::size_t begin = 0; begin < search_path.size();) {
+        const std::size_t end = search_path.find(';', begin);
+        const std::size_t entry_length =
+            end == std::string::npos ? search_path.size() - begin : end - begin;
+        const std::string_view entry(search_path.data() + begin, entry_length);
+        if (!entry.empty()) {
+            known_directories.emplace(entry);
+        }
+        begin = end == std::string::npos ? search_path.size() : end + 1;
+    }
+
+    bool changed = false;
+    for (const FrameKey &key : keys) {
+        const std::string directory = parentDirectory(modules.path(key.module));
+        if (directory.empty() || known_directories.find(directory) != known_directories.end()) {
+            continue;
+        }
+        const std::size_t separator_length = search_path.empty() ? 0 : 1;
+        if (search_path.size() + separator_length + directory.size() >= existing.size()) {
+            continue;
+        }
+        known_directories.emplace(directory);
+        if (separator_length != 0) {
+            search_path.push_back(';');
+        }
+        search_path += directory;
+        changed = true;
+    }
+    if (changed) {
+        ::SymSetSearchPath(process, search_path.c_str());
+    }
 }
 
 // SymFromAddr may return an unrelated export for a private CRT routine. Only trust
@@ -322,6 +374,12 @@ std::unordered_map<FrameKey, ResolvedFrame, FrameKeyHash> resolveFrames(const Mo
         std::scoped_lock lock(dbgHelpMutex());
         std::unordered_map<ModuleId, SYM_TYPE> module_symbol_types;
         module_symbol_types.reserve(modules.size());
+        if (session.initialized()) {
+            // DbgHelp's process invasion does not reliably include separately loaded
+            // plugin directories in its PDB search path. Configure them before the
+            // first deferred SymFromAddr lookup.
+            appendModuleDirectoriesToDbgHelpSearchPath(process, modules, keys);
+        }
         for (const FrameKey &key : keys) {
             ResolvedFrame rf;
             rf.class_name = basename(modules.path(key.module));
