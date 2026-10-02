@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <fstream>
 #include <limits>
 #include <map>
 #include <set>
@@ -697,6 +698,59 @@ inline bool sparkObject(const Object &object)
     return name == "endstone_spark.so" || (name.starts_with("endstone_spark-") && name.ends_with(".so"));
 }
 
+inline std::string initialPreload()
+{
+    constexpr std::string_view key = "LD_PRELOAD=";
+    constexpr std::size_t max_environment = 2 * 1024 * 1024;
+    constexpr std::size_t max_preload = 64 * 1024;
+    std::ifstream environment("/proc/self/environ", std::ios::binary);
+    if (!environment) {
+        return {};
+    }
+    std::string value;
+    std::size_t matched = 0;
+    bool ignored = false;
+    bool capturing = false;
+    bool found = false;
+    bool boundary = true;
+    char character = 0;
+    std::size_t bytes = 0;
+    while (environment.get(character)) {
+        if (++bytes > max_environment) {
+            return {};
+        }
+        if (character == '\0') {
+            if (capturing) {
+                found = true;
+            }
+            matched = 0;
+            ignored = false;
+            capturing = false;
+            boundary = true;
+            continue;
+        }
+        boundary = false;
+        if (capturing) {
+            if (value.size() == max_preload) {
+                return {};
+            }
+            value += character;
+        }
+        else if (!ignored) {
+            if (character != key[matched]) {
+                ignored = true;
+            }
+            else if (++matched == key.size()) {
+                if (found) {
+                    return {};
+                }
+                capturing = true;
+            }
+        }
+    }
+    return environment.eof() && boundary && found ? value : std::string{};
+}
+
 struct Admission {
     Snapshot snapshot;
     std::set<std::size_t> resident;
@@ -711,6 +765,57 @@ struct Admission {
         for (const auto index : resident) {
             require(!sparkObject(snapshot.objects[index]), "startup dependency closure includes Spark");
         }
+    }
+    bool preloadedAllocator(std::size_t index) const
+    {
+        const auto &object = snapshot.objects[index];
+        const auto name = std::filesystem::path(object.identity.path).filename().string();
+        const auto allocator = [](const std::string &value) {
+            for (const char *prefix : {"libjemalloc.so", "libmimalloc.so"}) {
+                const std::string_view stem(prefix);
+                if (value == stem) {
+                    return true;
+                }
+                if (value.starts_with(stem) && value.size() > stem.size() + 1 && value[stem.size()] == '.' &&
+                    std::all_of(value.begin() + stem.size() + 1, value.end(), [](char character) {
+                        return (character >= '0' && character <= '9') || character == '.';
+                    })) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        if (!allocator(name) || object.identity.inode == 0) {
+            return false;
+        }
+        const auto preload = initialPreload();
+        if (preload.empty()) {
+            return false;
+        }
+        bool listed = false;
+        for (const char *first = preload.c_str(); *first != '\0';) {
+            while (*first == ' ' || *first == ':') {
+                ++first;
+            }
+            const char *last = first;
+            while (*last != '\0' && *last != ' ' && *last != ':') {
+                ++last;
+            }
+            if (last != first) {
+                const std::string entry(first, last);
+                listed |= entry.find('/') == std::string::npos
+                            ? entry == object.soname || entry == std::filesystem::path(object.loader_name).filename()
+                            : sameFile(entry, object.identity.device, object.identity.inode);
+            }
+            first = last;
+        }
+        if (!listed || index >= spark) {
+            return false;
+        }
+        const auto dependencies = snapshot.closure(index);
+        return std::none_of(dependencies.begin(), dependencies.end(), [&](std::size_t dependency) {
+            return dependency == spark || sparkObject(snapshot.objects[dependency]);
+        });
     }
     void helperDependencies(const Object &helper)
     {

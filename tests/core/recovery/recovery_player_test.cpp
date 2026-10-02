@@ -365,6 +365,7 @@ void testRecoveryPlayerReplay()
     cfg.session_id = 100000;
     cfg.flush_interval_ms = 50;
     cfg.sync_interval_ms = 50;
+    cfg.shutdown_timeout_ms = 15000;
 
     RecoveryWriter writer(cfg);
     if (!writer.start()) {
@@ -446,6 +447,7 @@ void testCleanEndDetected()
     cfg.session_id = 200000;
     cfg.flush_interval_ms = 50;
     cfg.sync_interval_ms = 50;
+    cfg.shutdown_timeout_ms = 15000;
 
     RecoveryWriter writer(cfg);
     assert(writer.start());
@@ -482,6 +484,7 @@ void testNoCleanEndRecovered()
     cfg.session_id = 300000;
     cfg.flush_interval_ms = 50;
     cfg.sync_interval_ms = 50;
+    cfg.shutdown_timeout_ms = 15000;
 
     RecoveryWriter writer(cfg);
     assert(writer.start());
@@ -516,6 +519,7 @@ void testLiveOnlyRefused()
     cfg.session_id = 400000;
     cfg.flush_interval_ms = 50;
     cfg.sync_interval_ms = 50;
+    cfg.shutdown_timeout_ms = 15000;
 
     RecoveryWriter writer(cfg);
     assert(writer.start());

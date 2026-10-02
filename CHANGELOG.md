@@ -40,6 +40,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Prevent completed and cancelled LeviLamina main-thread tasks from accumulating
   in dispatcher bookkeeping during long-running server sessions.
+- Notify the server console and players when the crash-recovery journal degrades,
+  including when a session may no longer be recoverable.
+
+### Changed
+
+- Reduce CPU overhead of persistent Linux allocation-rate metrics while preserving
+  allocation profiler and unload behavior. Single-writer counters reduced observer
+  cost by 7.3-13.3 ns/op across seven single-thread benchmark workloads, with
+  unchanged reported counters and one-thread hook coverage.
+
+### Fixed
+
+- Exclude resolved Linux allocation-hook callback frames from execution profiles.
+- Keep recovery journal size accounting accurate when retained segments disappear
+  or cannot be statted, and stop journal growth after persistent metadata snapshot
+  failure or stalled pruning while profiling continues.
+- Prevent repeated startup replay of the same journal generation after cleanup
+  fails, and retain the first degradation cause and notices across session finalization.
+- Preserve world gauge counts while the level is unavailable and retry failed tile
+  reconciliation after a five-second backoff.
+
+## [0.6.1][0.6.1] - 2026-09-27
+
+### Added
+
+- Support Linux allocation profiling with standard shared jemalloc and mimalloc
+  loaded at startup through `LD_PRELOAD`.
+
+### Fixed
+
+- Recognize startup-preloaded Linux allocators after Endstone clears the runtime
+  `LD_PRELOAD` environment variable.
+- Show the resolved Linux allocator provider in allocation profile backend metadata.
 
 ## [0.6.0][0.6.0] - 2026-09-17
 
@@ -583,7 +616,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `dladdr` symbolization (module + RVA fallback for stripped frames).
 - Windows backend: `SuspendThread` + `StackWalk64` capture with PDB symbolization.
 
-[Unreleased]: https://github.com/EndstoneMC/spark/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/EndstoneMC/spark/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/EndstoneMC/spark/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/EndstoneMC/spark/compare/v0.5.3...v0.6.0
 [0.5.3]: https://github.com/EndstoneMC/spark/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/EndstoneMC/spark/compare/v0.5.1...v0.5.2

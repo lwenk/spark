@@ -37,6 +37,15 @@ target_compile_definitions(
 target_link_libraries(spark_allocation_benchmark PRIVATE spark_core)
 set_target_properties(spark_allocation_benchmark PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_options(spark_allocation_benchmark PRIVATE "LINKER:-z,now")
+    add_library(spark_allocation_benchmark_workload SHARED native/alloc/allocation_benchmark_workload.cpp)
+    target_compile_options(spark_allocation_benchmark_workload PRIVATE -fno-builtin)
+    target_link_options(spark_allocation_benchmark_workload PRIVATE "LINKER:-z,now")
+    set_target_properties(spark_allocation_benchmark_workload PROPERTIES
+            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    target_link_libraries(spark_allocation_benchmark PRIVATE spark_allocation_benchmark_workload)
+endif ()
 
 add_executable(spark_ci_diagnostics_test core/ci_diagnostics_test.cpp)
 target_link_libraries(spark_ci_diagnostics_test PRIVATE spark_diagnostics)
@@ -135,6 +144,20 @@ if (WIN32 OR (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SYSTEM_PROCESSOR MATC
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
     add_test(NAME spark_allocation_lifecycle_test COMMAND spark_allocation_lifecycle_test)
     set_tests_properties(spark_allocation_lifecycle_test PROPERTIES TIMEOUT 60)
+
+    # Linux-only: the oracle drives the permanent gateway with pthreads and the thread pointer.
+    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        add_executable(spark_allocation_shard_ownership_test native/alloc/allocation_shard_ownership_test.cpp)
+        target_compile_definitions(spark_allocation_shard_ownership_test PRIVATE SPARK_ALLOCATION_LIFECYCLE_TESTING=1)
+        target_include_directories(spark_allocation_shard_ownership_test PRIVATE "${CMAKE_SOURCE_DIR}/src"
+                "${CMAKE_SOURCE_DIR}/tests")
+        target_link_libraries(spark_allocation_shard_ownership_test PRIVATE spark_native_lifecycle_test)
+        set_target_properties(spark_allocation_shard_ownership_test PROPERTIES
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+        add_test(NAME spark_allocation_shard_ownership_test COMMAND spark_allocation_shard_ownership_test)
+        set_tests_properties(spark_allocation_shard_ownership_test PROPERTIES TIMEOUT 60)
+        target_link_options(spark_allocation_shard_ownership_test PRIVATE "LINKER:-z,now")
+    endif ()
 
     add_executable(spark_allocation_diagnostics_test native/alloc/allocation_diagnostics_test.cpp)
     target_compile_definitions(spark_allocation_diagnostics_test PRIVATE SPARK_ALLOCATION_LIFECYCLE_TESTING=1)
@@ -428,6 +451,16 @@ if (WIN32 OR (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SYSTEM_PROCESSOR MATC
     set_tests_properties(spark_profiler_recovery_lifecycle_test PROPERTIES TIMEOUT 60)
 endif ()
 
+if (WIN32 OR (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64"))    # journal degradation surfacing needs the lifecycle-built core
+    add_executable(spark_profiler_journal_degradation_test core/profiler/profiler_journal_degradation_test.cpp)
+    target_compile_definitions(spark_profiler_journal_degradation_test PRIVATE SPARK_ALLOCATION_LIFECYCLE_TESTING=1)
+    target_link_libraries(spark_profiler_journal_degradation_test PRIVATE spark_core_lifecycle_test)
+    set_target_properties(spark_profiler_journal_degradation_test PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    add_test(NAME spark_profiler_journal_degradation_test COMMAND spark_profiler_journal_degradation_test)
+    set_tests_properties(spark_profiler_journal_degradation_test PROPERTIES TIMEOUT 30)
+endif ()
+
 add_executable(spark_included_ticks_test core/profiler/included_ticks_test.cpp)
 target_link_libraries(spark_included_ticks_test PRIVATE spark_core)
 set_target_properties(spark_included_ticks_test PROPERTIES
@@ -489,6 +522,7 @@ target_link_libraries(spark_journal_test PRIVATE spark_core)
 set_target_properties(spark_journal_test PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 add_test(NAME spark_journal_test COMMAND spark_journal_test)
+set_tests_properties(spark_journal_test PROPERTIES TIMEOUT 120)
 
 add_executable(spark_journal_reader_bounds_test core/recovery/journal_reader_bounds_test.cpp)
 target_link_libraries(spark_journal_reader_bounds_test PRIVATE spark_core)
@@ -513,6 +547,13 @@ target_link_libraries(spark_recovery_save_failure_test PRIVATE spark_application
 set_target_properties(spark_recovery_save_failure_test PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 add_test(NAME spark_recovery_save_failure_test COMMAND spark_recovery_save_failure_test)
+
+add_executable(spark_recovery_replay_loop_test application/recovery/recovery_replay_loop_test.cpp)
+target_link_libraries(spark_recovery_replay_loop_test PRIVATE spark_application)
+set_target_properties(spark_recovery_replay_loop_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+add_test(NAME spark_recovery_replay_loop_test COMMAND spark_recovery_replay_loop_test)
+set_tests_properties(spark_recovery_replay_loop_test PROPERTIES TIMEOUT 30)
 
 add_executable(spark_recovery_corrupt_test application/recovery/recovery_corrupt_test.cpp)
 target_link_libraries(spark_recovery_corrupt_test PRIVATE spark_application)

@@ -1,93 +1,60 @@
-# spark for Bedrock
+# Spark for Bedrock
 
-spark for Bedrock is a native performance profiler for Bedrock Dedicated Server
-(BDS). It samples native execution and allocation call stacks, creates standard
-spark profiles, and uploads them to or opens them in the spark viewer. Host
-adapters are available for [Endstone](https://endstone.dev/) and
-[LeviLamina](https://github.com/LiteLDev/LeviLamina).
+Spark is a native profiler for Minecraft Bedrock Dedicated Server. It samples
+native execution and allocation call stacks, then displays the results in the
+[spark viewer](https://spark.lucko.me/). It supports Endstone and a Windows x64
+LeviLamina 26.51 module.
 
-Profiles use spark's existing protobuf format, upload protocol, and web viewer;
-credit for those parts belongs to [lucko/spark](https://github.com/lucko/spark).
+Spark uses the profile format, protocol, and viewer from
+[lucko/spark](https://github.com/lucko/spark). Credit for those belongs to the
+upstream spark project.
 
-## Host support
+## Install
 
-| Host | Type | Platforms |
-| --- | --- | --- |
-| Endstone | Plugin | Windows and Linux |
-| LeviLamina | Module | Windows x64 |
+For Endstone, download `endstone_spark.dll` on Windows or `endstone_spark.so`
+on Linux from the [latest release](https://github.com/EndstoneMC/spark/releases/latest),
+place it in the server `plugins/` directory, then fully restart the server.
 
-See [building](docs/building.md) and the [latest Release](https://github.com/EndstoneMC/spark/releases/latest)
-for host setup, version requirements, and limitations.
+For LeviLamina, use the `levilamina_spark.dll` module together with its
+`manifest.json` in the LeviLamina mods directory. It is built for BDS 1.26.51.x
+and LeviLamina 26.51.x.
 
-## Install the Endstone plugin
+## Quick start
 
-1. Install Endstone using its [official installation guide](https://endstone.dev/latest/getting-started/installation/).
-2. Download the matching `endstone_spark.dll` (Windows) or `endstone_spark.so`
-   (Linux) from the [latest Release](https://github.com/EndstoneMC/spark/releases/latest).
-3. Copy the library into the server's `plugins/` directory.
-4. Start or restart BDS. Endstone should load `spark` and create its data folder.
+Run these commands in the server console or in game as an operator:
 
 ```text
-plugins/
-  endstone_spark.dll   # Windows
-  endstone_spark.so    # Linux
-```
-
-Use a full restart when upgrading the library. The plugin writes `config.toml`,
-`trusted-viewers.json`, `activity.json`, and profiles below its data directory;
-see [configuration](docs/configuration.md) for the keys and paths.
-
-## Capture the first profile
-
-Run the command as a player or console sender with the required permission:
-
-```text
-/spark profiler start --timeout 30
-```
-
-After 30 seconds the profile is finalized and uploaded. Open the printed URL in
-the spark viewer. To keep the raw `.sparkprofile` locally instead, use:
-
-```text
-/spark profiler start --timeout 30 --save-to-file
-```
-
-Spark writes the local file under the plugin data directory in `profiles/`;
-drag it onto <https://spark.lucko.me/>. If an upload fails, spark also preserves
-the raw profile locally. The [command reference](docs/commands.md) covers allocation
-profiles, thread selection, filtering, live viewing, and health reports.
-
-## Common tasks
-
-```text
+/spark profiler start
 /spark profiler info
 /spark profiler stop
-/spark profiler cancel
-/spark profiler open
-/spark tps
-/spark health show
-/spark ping
-/spark activity
-/spark tickmonitor
 ```
 
-Background sampling runs every 10 ms by default. Starting a foreground profile
-pauses it. It resumes after an explicit stop or upload, but stays paused after
-cancel or timeout.
+The profiler runs until stopped. `stop` uploads the profile and prints a viewer
+link. Use `/spark profiler start --alloc` for allocation profiling.
 
-spark creates `config.toml` on first start. If a setting is invalid, it reports
-the error and uses defaults for that run without overwriting your file.
+## Features
+
+- Sample native server execution, including work outside plugin code.
+- Profile native allocations with `/spark profiler start --alloc`.
+- View rolling server statistics with `/spark tps` and resource reports with
+  `/spark health show`.
+- Open a live spark viewer while profiling with `/spark profiler open`.
 
 ## Documentation
 
-- [Commands](docs/commands.md) — aliases, permissions, profiler flags, health, activity, and tick monitoring.
-- [Configuration](docs/configuration.md) — TOML keys, defaults, environment overrides, and trusted viewers.
-- [Building](docs/building.md) — Endstone and LeviLamina builds, offline tests, ABI requirements, and host inputs.
-- [Profiling details](docs/profiling.md) — profile interpretation, native symbol guesses, allocation coverage, live viewer, and crash recovery.
-- [Architecture](docs/ARCHITECTURE.md) — layers, host adapters, and shutdown/sampling boundaries.
-- [Python function attribution](docs/python-function-attribution.md) — Endstone CPython 3.12+ attribution details.
-- [Behavior pack metadata](docs/BEHAVIOR_PACK_METADATA.md) — Endstone metadata compatibility fallback.
+For server owners and operators:
+
+- [Using Spark](docs/using-spark.md)
+- [Configuration](docs/configuration.md)
+
+For developers and contributors:
+
+- [Development](docs/development.md)
+- [Architecture](docs/architecture.md)
+- [Behavior pack metadata](docs/behavior-pack-metadata.md)
+- [Python function attribution](docs/python-function-attribution.md)
 
 ## License
 
-GPLv3, matching spark. See [LICENSE](LICENSE).
+Spark for Bedrock is licensed under the GNU General Public License v3.0. See
+[LICENSE](LICENSE).

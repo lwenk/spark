@@ -35,6 +35,11 @@ FIXTURE_API int sampler_start(unsigned mode)
     return static_cast<int>(result);
 }
 
+FIXTURE_API const char *sampler_backend_name()
+{
+    return Sampler->resolvedBackendName();
+}
+
 FIXTURE_API int sampler_finish(bool shutdown)
 {
     std::string error;
@@ -87,6 +92,22 @@ FIXTURE_API bool sampler_suppress(bool value)
 FIXTURE_API std::uint64_t sampler_samples()
 {
     return Sampler->sampleCount();
+}
+FIXTURE_API std::uint64_t sampler_live_samples()
+{
+    return Sampler->liveSamples();
+}
+FIXTURE_API std::uint64_t sampler_observed_bytes()
+{
+    return Sampler->observedBytes();
+}
+FIXTURE_API std::uint64_t sampler_sampling_points()
+{
+    return Sampler->samplingPoints();
+}
+FIXTURE_API std::uint64_t sampler_hook_calls()
+{
+    return Sampler->hookCalls();
 }
 FIXTURE_API bool sampler_current_thread_sampled()
 {
