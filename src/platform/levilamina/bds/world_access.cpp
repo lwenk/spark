@@ -137,8 +137,9 @@ ChunkKeyResult WorldAccess::chunkKeyStatus(::LevelChunk const &chunk, WorldGauge
             return ChunkKeyResult::ForeignLevel;
         }
         const auto &position = chunk.mPosition.get();
-        key = {
-            .dimension = canonicalDimensionName(static_cast<int>(dimension.getDimensionId())), .x = position.x, .z = position.z};
+        key = {.dimension = canonicalDimensionName(static_cast<int>(dimension.getDimensionId())),
+               .x = position.x,
+               .z = position.z};
         return ChunkKeyResult::Valid;
     }
     catch (...) {
