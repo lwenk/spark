@@ -50,9 +50,8 @@ extern "C" __declspec(noinline) std::uint64_t __cdecl originalFive(std::uint64_t
 }
 
 extern "C"
-    __declspec(noinline) std::uint64_t __cdecl capturingHandler(std::uint64_t a, std::uint64_t b,
-                                                                std::uint64_t c, std::uint64_t d,
-                                                                std::uint64_t e) noexcept
+    __declspec(noinline) std::uint64_t __cdecl capturingHandler(std::uint64_t a, std::uint64_t b, std::uint64_t c,
+                                                                std::uint64_t d, std::uint64_t e) noexcept
 {
     GFrames.fill(nullptr);
     GDepth = captureDynamicAwareStackBackTrace(0, static_cast<ULONG>(GFrames.size()), GFrames.data(), nullptr);
