@@ -79,8 +79,8 @@ std::string parentDirectory(std::string_view path)
 void appendModuleDirectoriesToDbgHelpSearchPath(HANDLE process, const ModuleTable &modules,
                                                 const std::vector<FrameKey> &keys)
 {
-    constexpr DWORD KSearchPathCapacity = 64 * 1024;
-    std::array<char, KSearchPathCapacity> existing{};
+    constexpr DWORD k_search_path_capacity = 64 * 1024;
+    std::array<char, k_search_path_capacity> existing{};
     if (::SymGetSearchPath(process, existing.data(), static_cast<DWORD>(existing.size())) == FALSE) {
         return;
     }
@@ -100,7 +100,7 @@ void appendModuleDirectoriesToDbgHelpSearchPath(HANDLE process, const ModuleTabl
     bool changed = false;
     for (const FrameKey &key : keys) {
         const std::string directory = parentDirectory(modules.path(key.module));
-        if (directory.empty() || known_directories.find(directory) != known_directories.end()) {
+        if (directory.empty() || known_directories.contains(directory)) {
             continue;
         }
         const std::size_t separator_length = search_path.empty() ? 0 : 1;
